@@ -30,7 +30,7 @@ class MinMaxScaler:
         x = self._check_is_array(x)
         diff_max_min = self.maximum - self.minimum
         
-        # TODO: There is a bug here... Look carefully! 
+        # TODO: There is a bug here... Look carefully!, precedence matters while division and subtraction, so usage of brackets resolved the bug 
         return (x-self.minimum)/(self.maximum-self.minimum)
     
     def fit_transform(self, x:list) -> np.ndarray:
@@ -67,26 +67,39 @@ class StandardScaler:
         x = self._check_is_array(x)
         new_std = np.where(self.std == 0, 1, self.std)
         
-        # TODO: There is a bug here... Look carefully! 
+       
         return (x - self.mean) / new_std
     
     def fit_transform(self, x:list) -> np.ndarray:
         x = self._check_is_array(x)
-        self.fit(x)
-        return self.transform(x)
+        return self.self.fit(x).transform(x)
 
 class LabelEncoder:
+
     def __init__(self):
         self.classes_ = None
+    
+    def _check_is_array(self, x) -> np.ndarray:
+        if not isinstance(x, np.ndarray):
+            x = np.array(x)
+        assert isinstance(x, np.ndarray), "Expected the input to be a numpy array"
+        return x
         
-    def fit(self, x: List[str]) -> None:
-        x = np.array(x)
+    def fit(self, x: List) -> None:
+        x = self._check_is_array(x)
         self.classes_ = np.unique(x)
         
-    def transform(self, x: List[str]) -> np.ndarray:
-        x = np.array(x)
+    def transform(self, x: List) -> np.ndarray:
+        x = self._check_is_array(x)
+        if self.classes_ is None:
+            raise ValueError("LabelEncoder does not have any labels defined")
+        
+        for labels in x:
+            if labels not in self.classes_:
+                raise ValueError(f"Unknown label -> '{labels}' found in labelencoder() class. try fitting the encoder again.")
+        
         return np.array([np.where(self.classes_ == val)[0][0] for val in x])
     
-    def fit_transform(self, x: List[str]) -> np.ndarray:
+    def fit_transform(self, x: List) -> np.ndarray:
         self.fit(x)
         return self.transform(x)
