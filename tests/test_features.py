@@ -1,4 +1,4 @@
-from aim5005.features import MinMaxScaler, StandardScaler
+from aim5005.features import MinMaxScaler, StandardScaler, LabelEncoder
 import numpy as np
 import unittest
 from unittest.case import TestCase
@@ -51,6 +51,7 @@ class TestFeatures(TestCase):
         data = [[0, 0], [0, 0], [1, 1], [1, 1]]
         expected = np.array([[-1., -1.], [-1., -1.], [1., 1.], [1., 1.]])
         scaler.fit(data)
+        result = scaler.transform(data)
         assert (result == expected).all(), "Scaler transform does not return expected values. Expect {}. Got: {}".format(expected.reshape(1,-1), result.reshape(1,-1))
         
     def test_standard_scaler_single_value(self):
@@ -62,6 +63,34 @@ class TestFeatures(TestCase):
         assert (result == expected).all(), "Scaler transform does not return expected values. Expect {}. Got: {}".format(expected.reshape(1,-1), result.reshape(1,-1))
 
     # TODO: Add a test of your own below this line
+
+    def test_label_encoder_init(self):
+        encoder = LabelEncoder()
+        assert isinstance(encoder, LabelEncoder), "encoder is not a LabelEncoder object"
+    
+    def test_label_encoder_fit(self):
+        encoder = LabelEncoder()
+        data = [10, 20, 10, 30, 20, 40]
+        encoder.fit(data)
+        expected_classes = np.array([10, 20, 30, 40])
+        assert (encoder.classes_ == expected_classes).all(), "LabelEncoder fit does not return expected classes. Got: {}".format(encoder.classes_)
+    
+    def test_label_encoder_transform(self):
+        encoder = LabelEncoder()
+        data = [10, 20, 30, 40]
+        encoder.fit(data)
+        transformed = encoder.transform([10, 20, 30, 40])
+        expected = np.array([0, 1, 2, 3])
+        assert (transformed == expected).all(), "LabelEncoder transform does not return expected values. Expect {}. Got: {}".format(expected, transformed)
+    
+    def test_label_encoder_fit_transform(self):
+        encoder = LabelEncoder()
+        data = [100, 200, 300, 100, 200, 400]
+        transformed = encoder.fit_transform(data)
+        expected = np.array([0, 1, 2, 0, 1, 3])
+        assert (transformed == expected).all(), "LabelEncoder fit_transform does not return expected values. Expect {}. Got: {}".format(expected, transformed)
+    
+
     
 if __name__ == '__main__':
     unittest.main()
